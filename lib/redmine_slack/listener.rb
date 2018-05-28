@@ -12,29 +12,39 @@ class SlackListener < Redmine::Hook::Listener
 
 		msg = "[#{escape issue.project}] #{escape issue.author} created <#{object_url issue}|#{escape issue}>#{mentions issue.description}"
 
-		attachment = {}
-		attachment[:text] = escape issue.description if issue.description
-		attachment[:fields] = [{
-			:title => I18n.t("field_status"),
-			:value => escape(issue.status.to_s),
-			:short => true
+		card = {
+			:header => {
+				:title => escape issue.description if issue.description
+			}
+		}
+
+		widgets = [{
+			:topLabel => I18n.t("field_status"),
+			:content => escape(issue.status.to_s),
+			:contentMultiline => "false"
 		}, {
-			:title => I18n.t("field_priority"),
-			:value => escape(issue.priority.to_s),
-			:short => true
+			:topLabel => I18n.t("field_priority"),
+			:content => escape(issue.priority.to_s),
+			:contentMultiline => "false"
 		}, {
-			:title => I18n.t("field_assigned_to"),
-			:value => escape(issue.assigned_to.to_s),
-			:short => true
+			:topLabel => I18n.t("field_assigned_to"),
+			:content => escape(issue.assigned_to.to_s),
+			:contentMultiline => "false"
 		}]
 
-		attachment[:fields] << {
-			:title => I18n.t("field_watcher"),
-			:value => escape(issue.watcher_users.join(', ')),
-			:short => true
+		widgets << {
+			:topLabel => I18n.t("field_watcher"),
+			:content => escape(issue.watcher_users.join(', ')),
+			:contentMultiline => "false"
 		} if Setting.plugin_redmine_slack['display_watchers'] == 'yes'
 
-		speak msg, channel, attachment, url
+		card[:sections] = [
+			{
+				:widgets => widgets
+			}
+		]
+
+		speak msg, channel, card, url
 	end
 
 	def redmine_slack_issues_edit_after_save(context={})
@@ -50,11 +60,14 @@ class SlackListener < Redmine::Hook::Listener
 
 		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <#{object_url issue}|#{escape issue}>#{mentions journal.notes}"
 
-		attachment = {}
-		attachment[:text] = escape journal.notes if journal.notes
-		attachment[:fields] = journal.details.map { |d| detail_to_field d }
+		card = {
+			:text => escape journal.notes if journal.notes,
+			:sections => {
+				:widgets => journal.details.map { |d| detail_to_field d }
+			}
+		}
 
-		speak msg, channel, attachment, url
+		speak msg, channel, card, url
 	end
 
 	def model_changeset_scan_commit_for_issue_ids_pre_issue_update(context={})
@@ -97,11 +110,16 @@ class SlackListener < Redmine::Hook::Listener
 			)
 		end
 
-		attachment = {}
-		attachment[:text] = ll(Setting.default_language, :text_status_changed_by_changeset, "<#{revision_url}|#{escape changeset.comments}>")
-		attachment[:fields] = journal.details.map { |d| detail_to_field d }
+		card = {
+			:header => {
+				:title => ll(Setting.default_language, :text_status_changed_by_changeset, "<#{revision_url}|#{escape changeset.comments}>")
+			},
+			:sections => {
+				:widgets => journal.details.map { |d| detail_to_field d }
+			}
+		}
 
-		speak msg, channel, attachment, url
+		speak msg, channel, card, url
 	end
 
 	def controller_wiki_edit_after_save(context = { })
@@ -118,23 +136,27 @@ class SlackListener < Redmine::Hook::Listener
 		channel = channel_for_project project
 		url = url_for_project project
 
-		attachment = nil
+		card = nil
 		if not page.content.comments.empty?
-			attachment = {}
-			attachment[:text] = "#{escape page.content.comments}"
+			card = {
+				:header => {
+					:title => "#{escape page.content.comments}"
+				}
+			}
 		end
 
-		speak comment, channel, attachment, url
+		speak comment, channel, card, url
 	end
 
-	def speak(msg, channel, attachment=nil, url=nil)
+	def speak(msg, channel, card=nil, url=nil)
 		url = Setting.plugin_redmine_slack['slack_url'] if not url
 		username = Setting.plugin_redmine_slack['username']
 		icon = Setting.plugin_redmine_slack['icon']
 		url = url + '&thread_key=' + channel if channel
 
 		params = {
-			:text => msg
+			:text => msg,
+			:cards => [ card ]
 		}
 
 		params[:sender] = { :displayName => username } if username
@@ -253,8 +275,13 @@ private
 
 		value = "-" if value.empty?
 
-		result = { :title => title, :value => value }
-		result[:short] = true if short
+		result = { 
+			:keyValue => { 
+				:topLabel => title,
+				:content => value 
+			} 
+		} 
+		result[:short][:keyValue][:contentMultiline] = "true" if not short
 		result
 	end
 
