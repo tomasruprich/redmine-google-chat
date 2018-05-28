@@ -191,12 +191,12 @@ class SlackListener < Redmine::Hook::Listener
 
 	def speak(msg, channel, card=nil, url=nil)
 		url = Setting.plugin_redmine_slack['slack_url'] if not url
-		username = msg.author
+		username = msg[:author]
 		icon = Setting.plugin_redmine_slack['icon']
 		url = url + '&thread_key=' + channel if channel
 
 		card[:header] = {
-			:title => "#{msg.action} #{escape msg.issue} #{msg.mentions}",
+			:title => "#{msg[:action]} #{escape msg[:issue]} #{msg[:mentions]}",
 			:subtitle => "#{escape msg.project_name}"
 		}
 
@@ -212,14 +212,14 @@ class SlackListener < Redmine::Hook::Listener
                             :text => "OPEN ISSUE",
                             :onClick => {
 								:openLink => {
-									:url => issue.link
+									:url => msg[:link]
 								}
 							}
                         }
                     }
                 ]
 			]
-		} if issue.link
+		} if msg[:link]
 
 		card[:sections] << {
 			:widgets => [
@@ -229,14 +229,14 @@ class SlackListener < Redmine::Hook::Listener
                             :text => "OPEN PROJECT",
                             :onClick => {
 								:openLink => {
-									:url => issue.project_link
+									:url => msg[:project_link]
 								}
 							}
                         }
                     }
                 ]
 			]
-		} if issue.project_link
+		} if msg[:project_link]
 
 		params[:sender] = { :displayName => username } if username
 
