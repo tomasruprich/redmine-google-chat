@@ -27,23 +27,31 @@ class SlackListener < Redmine::Hook::Listener
 		card[:header][:title] = escape(issue.description) if issue.description
 
 		widgets = [{
-			:topLabel => I18n.t("field_status"),
-			:content => escape(issue.status.to_s),
-			:contentMultiline => "false"
+			:keyValue => {
+				:topLabel => I18n.t("field_status"),
+				:content => escape(issue.status.to_s),
+				:contentMultiline => "false"
+				}
 		}, {
-			:topLabel => I18n.t("field_priority"),
-			:content => escape(issue.priority.to_s),
-			:contentMultiline => "false"
+			:keyValue => {
+				:topLabel => I18n.t("field_priority"),
+				:content => escape(issue.priority.to_s),
+				:contentMultiline => "false"
+			}
 		}, {
-			:topLabel => I18n.t("field_assigned_to"),
-			:content => escape(issue.assigned_to.to_s),
-			:contentMultiline => "false"
+			:keyValue => {
+				:topLabel => I18n.t("field_assigned_to"),
+				:content => escape(issue.assigned_to.to_s),
+				:contentMultiline => "false"
+			}
 		}]
 
 		widgets << {
-			:topLabel => I18n.t("field_watcher"),
-			:content => escape(issue.watcher_users.join(', ')),
-			:contentMultiline => "false"
+			:keyValue => {
+				:topLabel => I18n.t("field_watcher"),
+				:content => escape(issue.watcher_users.join(', ')),
+				:contentMultiline => "false"
+			}
 		} if Setting.plugin_redmine_slack['display_watchers'] == 'yes'
 
 		card[:sections] = [
@@ -149,11 +157,12 @@ class SlackListener < Redmine::Hook::Listener
 			:header => {
 				:title => ll(Setting.default_language, :text_status_changed_by_changeset, "<a href=\"#{revision_url}\">#{escape changeset.comments}</a>")
 			},
-			:sections => {
-			}
+			:sections => []
 		}
 
-		card[:sections][:widgets] = journal.details.map { |d| detail_to_field d }
+		card[:sections] << {
+			:widgets => journal.details.map { |d| detail_to_field d }
+		}
 
 		speak msg, channel, card, url
 	end
