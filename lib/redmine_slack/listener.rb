@@ -196,7 +196,7 @@ class SlackListener < Redmine::Hook::Listener
 		url = url + '&thread_key=' + channel if channel
 
 		card[:header] = {
-			:title => "#{msg.action} #{escape msg.issue} #{msg.mentions}"
+			:title => "#{msg.action} #{escape msg.issue} #{msg.mentions}",
 			:subtitle => "#{escape msg.project_name}"
 		}
 
