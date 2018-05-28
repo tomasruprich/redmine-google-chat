@@ -62,13 +62,24 @@ class SlackListener < Redmine::Hook::Listener
 		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <#{object_url issue}|#{escape issue}>#{mentions journal.notes}"
 
 		card = {
-			:sections => {
-			}
+			:sections => [
+			]
 		}
-		card[:sections][:widgets] = journal.details.map { |d| detail_to_field d }
+		card[:sections] << {
+				:widgets => []
+		}
 
+		card[:sections][0][:widgets] = journal.details.map { |d| detail_to_field d }
 
-		card[:text] = escape journal.notes if journal.notes
+		card[:sections] << {
+				:widgets => [
+						{
+								:textParagraph => {
+										:text => escape(journal.notes)
+								}
+						}
+				]
+		} if journal.notes
 
 		speak msg, channel, card, url
 	end
@@ -158,8 +169,11 @@ class SlackListener < Redmine::Hook::Listener
 		icon = Setting.plugin_redmine_slack['icon']
 		url = url + '&thread_key=' + channel if channel
 
+		card[:header] = {
+			:title => msg
+		}
+
 		params = {
-			:text => msg,
 			:cards => [ card ]
 		}
 
