@@ -65,11 +65,12 @@ class SlackListener < Redmine::Hook::Listener
 			:sections => [
 			]
 		}
-		card[:sections] << {
-				:widgets => []
-		}
 
-		card[:sections][0][:widgets] = journal.details.map { |d| detail_to_field d }
+		fields = journal.details.map { |d| detail_to_field d }
+
+		card[:sections] << {
+				:widgets => fields
+		} if fields.size > 0
 
 		card[:sections] << {
 				:widgets => [
