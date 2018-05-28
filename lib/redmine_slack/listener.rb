@@ -137,7 +137,7 @@ class SlackListener < Redmine::Hook::Listener
 			:text => msg
 		}
 
-		params[:sender] = { :name => username } if username
+		params[:sender] = { :displayName => username } if username
 
 		begin
 			client = HTTPClient.new
