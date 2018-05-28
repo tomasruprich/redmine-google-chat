@@ -19,12 +19,11 @@ class SlackListener < Redmine::Hook::Listener
 			:mentions => "#{mentions issue.description}"
 		}
 
-		card = {
-			:header => {
-			}
-		}
+		card = {}
 
-		card[:header][:title] = escape(issue.description) if issue.description
+		card[:header] = {
+			:title => escape(issue.description)
+		} if issue.description
 
 		widgets = [{
 			:keyValue => {
