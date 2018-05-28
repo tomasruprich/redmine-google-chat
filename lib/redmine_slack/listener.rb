@@ -10,7 +10,14 @@ class SlackListener < Redmine::Hook::Listener
 		return unless channel and url
 		return if issue.is_private?
 
-		msg = "[#{escape issue.project}] #{escape issue.author} created <a href=\"#{object_url issue}\">#{escape issue}</a>#{mentions issue.description}"
+		msg = {
+			:project_name => issue.project,
+			:author => issue.author,
+			:action => "created",
+			:link => object_url(issue),
+			:issue => issue,
+			:mentions => "#{mentions issue.description}"
+		}
 
 		card = {
 			:header => {
@@ -59,7 +66,14 @@ class SlackListener < Redmine::Hook::Listener
 		return if issue.is_private?
 		return if journal.private_notes?
 
-		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <a href=\"#{object_url issue}\">#{escape issue}</a>#{mentions journal.notes}"
+		msg = {
+			:project_name => issue.project,
+			:author => journal.user.to_s,
+			:action => "updated",
+			:link => object_url(issue),
+			:issue => issue,
+			:mentions => "#{mentions journal.notes}"
+		}
 
 		card = {
 			:sections => [
@@ -75,9 +89,9 @@ class SlackListener < Redmine::Hook::Listener
 		card[:sections] << {
 				:widgets => [
 						{
-								:textParagraph => {
-										:text => escape(journal.notes)
-								}
+							:textParagraph => {
+									:text => escape(journal.notes)
+							}
 						}
 				]
 		} if journal.notes
@@ -96,7 +110,13 @@ class SlackListener < Redmine::Hook::Listener
 		return unless channel and url and issue.save
 		return if issue.is_private?
 
-		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <a href=\"#{object_url issue}\">#{escape issue}</a>"
+		msg = {
+			:project_name => issue.project,
+			:author => journal.user.to_s,
+			:action => "updated",
+			:link => object_url(issue),
+			:issue => issue
+		}
 
 		repository = changeset.repository
 
@@ -145,9 +165,6 @@ class SlackListener < Redmine::Hook::Listener
 		page = context[:page]
 
 		user = page.content.author
-		project_url = "<#{object_url project}|#{escape project}>"
-		page_url = "<#{object_url page}|#{page.title}>"
-		comment = "[#{project_url}] #{page_url} updated by *#{user}*"
 
 		channel = channel_for_project project
 		url = url_for_project project
@@ -161,22 +178,65 @@ class SlackListener < Redmine::Hook::Listener
 			}
 		end
 
+		comment = {
+			:project_name => project,
+			:author => user,
+			:action => "updated",
+			:link => object_url(page),
+			:project_link => object_url(project)
+		}
+
 		speak comment, channel, card, url
 	end
 
 	def speak(msg, channel, card=nil, url=nil)
 		url = Setting.plugin_redmine_slack['slack_url'] if not url
-		username = Setting.plugin_redmine_slack['username']
+		username = msg.author
 		icon = Setting.plugin_redmine_slack['icon']
 		url = url + '&thread_key=' + channel if channel
 
 		card[:header] = {
-			:title => msg
+			:title => "#{msg.action} #{escape msg.issue} #{msg.mentions}"
+			:subtitle => "#{escape msg.project_name}"
 		}
 
 		params = {
 			:cards => [ card ]
 		}
+
+		card[:sections] << {
+			:widgets => [
+				:buttons => [
+                    {
+                        :textButton => {
+                            :text => "OPEN ISSUE",
+                            :onClick => {
+								:openLink => {
+									:url => issue.link
+								}
+							}
+                        }
+                    }
+                ]
+			]
+		} if issue.link
+
+		card[:sections] << {
+			:widgets => [
+				:buttons => [
+                    {
+                        :textButton => {
+                            :text => "OPEN PROJECT",
+                            :onClick => {
+								:openLink => {
+									:url => issue.project_link
+								}
+							}
+                        }
+                    }
+                ]
+			]
+		} if issue.project_link
 
 		params[:sender] = { :displayName => username } if username
 
