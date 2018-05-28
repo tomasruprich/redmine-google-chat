@@ -197,7 +197,7 @@ class SlackListener < Redmine::Hook::Listener
 
 		card[:header] = {
 			:title => "#{msg[:action]} #{escape msg[:issue]} #{msg[:mentions]}",
-			:subtitle => "#{escape msg.project_name}"
+			:subtitle => "#{escape msg[:project_name]}"
 		}
 
 		params = {
