@@ -10,7 +10,7 @@ class SlackListener < Redmine::Hook::Listener
 		return unless channel and url
 		return if issue.is_private?
 
-		msg = "[#{escape issue.project}] #{escape issue.author} created <#{object_url issue}|#{escape issue}>#{mentions issue.description}"
+		msg = "[#{escape issue.project}] #{escape issue.author} created <a href=\"#{object_url issue}\">#{escape issue}</a>#{mentions issue.description}"
 
 		card = {
 			:header => {
@@ -59,7 +59,7 @@ class SlackListener < Redmine::Hook::Listener
 		return if issue.is_private?
 		return if journal.private_notes?
 
-		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <#{object_url issue}|#{escape issue}>#{mentions journal.notes}"
+		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <a href=\"#{object_url issue}\">#{escape issue}</a>#{mentions journal.notes}"
 
 		card = {
 			:sections => [
@@ -96,7 +96,7 @@ class SlackListener < Redmine::Hook::Listener
 		return unless channel and url and issue.save
 		return if issue.is_private?
 
-		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <#{object_url issue}|#{escape issue}>"
+		msg = "[#{escape issue.project}] #{escape journal.user.to_s} updated <a href=\"#{object_url issue}\">#{escape issue}</a>"
 
 		repository = changeset.repository
 
@@ -127,7 +127,7 @@ class SlackListener < Redmine::Hook::Listener
 
 		card = {
 			:header => {
-				:title => ll(Setting.default_language, :text_status_changed_by_changeset, "<#{revision_url}|#{escape changeset.comments}>")
+				:title => ll(Setting.default_language, :text_status_changed_by_changeset, "<a href=\"#{revision_url}\">#{escape changeset.comments}</a>")
 			},
 			:sections => {
 			}
