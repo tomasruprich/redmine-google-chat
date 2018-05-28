@@ -63,9 +63,10 @@ class SlackListener < Redmine::Hook::Listener
 
 		card = {
 			:sections => {
-				:widgets => journal.details.map({ |d| detail_to_field d })
 			}
 		}
+		card[:sections][:widgets] = journal.details.map { |d| detail_to_field d }
+
 
 		card[:text] = escape journal.notes if journal.notes
 
@@ -117,9 +118,10 @@ class SlackListener < Redmine::Hook::Listener
 				:title => ll(Setting.default_language, :text_status_changed_by_changeset, "<#{revision_url}|#{escape changeset.comments}>")
 			},
 			:sections => {
-				:widgets => journal.details.map({ |d| detail_to_field d }) 
 			}
 		}
+
+		card[:sections][:widgets] = journal.details.map { |d| detail_to_field d }
 
 		speak msg, channel, card, url
 	end
