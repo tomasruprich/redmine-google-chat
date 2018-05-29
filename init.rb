@@ -23,7 +23,7 @@ end
 
 ActionDispatch::Callbacks.to_prepare do
 	require_dependency 'issue'
-	unless Issue.included_modules.include? RedmineSlack::IssuePatch
-		Issue.send(:include, RedmineSlack::IssuePatch)
+	unless Issue.included_modules.include? RedmineHangoutsChat::IssuePatch
+		Issue.send(:include, RedmineHangoutsChat::IssuePatch)
 	end
 end
