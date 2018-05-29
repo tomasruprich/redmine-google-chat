@@ -283,7 +283,7 @@ private
 	def url_for_project(proj)
 		return nil if proj.blank?
 
-		cf = ProjectCustomField.find_by_name("Slack URL")
+		cf = ProjectCustomField.find_by_name("Hangouts Chat URL")
 
 		return [
 			(proj.custom_value_for(cf).value rescue nil),
