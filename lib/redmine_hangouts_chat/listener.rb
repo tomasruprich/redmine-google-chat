@@ -1,7 +1,7 @@
 require 'httpclient'
 
 class HangoutsChatListener < Redmine::Hook::Listener
-	def redmine_slack_issues_new_after_save(context={})
+	def redmine_hangouts_chat_issues_new_after_save(context={})
 		issue = context[:issue]
 
 		channel = channel_for_project issue.project
@@ -50,7 +50,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 				:content => escape(issue.watcher_users.join(', ')),
 				:contentMultiline => "false"
 			}
-		} if Setting.plugin_redmine_slack['display_watchers'] == 'yes'
+		} if Setting.plugin_redmine_hangouts_chat['display_watchers'] == 'yes'
 
 		card[:sections] = [
 			{
@@ -61,14 +61,14 @@ class HangoutsChatListener < Redmine::Hook::Listener
 		speak msg, channel, card, url
 	end
 
-	def redmine_slack_issues_edit_after_save(context={})
+	def redmine_hangouts_chat_issues_edit_after_save(context={})
 		issue = context[:issue]
 		journal = context[:journal]
 
 		channel = channel_for_project issue.project
 		url = url_for_project issue.project
 
-		return unless channel and url and Setting.plugin_redmine_slack['post_updates'] == '1'
+		return unless channel and url and Setting.plugin_redmine_hangouts_chat['post_updates'] == '1'
 		return if issue.is_private?
 		return if journal.private_notes?
 
@@ -166,7 +166,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 	end
 
 	def controller_wiki_edit_after_save(context = { })
-		return unless Setting.plugin_redmine_slack['post_wiki_updates'] == '1'
+		return unless Setting.plugin_redmine_hangouts_chat['post_wiki_updates'] == '1'
 
 		project = context[:project]
 		page = context[:page]
@@ -197,9 +197,9 @@ class HangoutsChatListener < Redmine::Hook::Listener
 	end
 
 	def speak(msg, channel, card=nil, url=nil)
-		url = Setting.plugin_redmine_slack['slack_url'] if not url
+		url = Setting.plugin_redmine_hangouts_chat['slack_url'] if not url
 		username = msg[:author]
-		icon = Setting.plugin_redmine_slack['icon']
+		icon = Setting.plugin_redmine_hangouts_chat['icon']
 		url = url + '&thread_key=' + channel if channel
 
 		card[:header] = {
@@ -288,7 +288,7 @@ private
 		return [
 			(proj.custom_value_for(cf).value rescue nil),
 			(url_for_project proj.parent),
-			Setting.plugin_redmine_slack['slack_url'],
+			Setting.plugin_redmine_hangouts_chat['slack_url'],
 		].find{|v| v.present?}
 	end
 
@@ -300,7 +300,7 @@ private
 		val = [
 			(proj.custom_value_for(cf).value rescue nil),
 			(channel_for_project proj.parent),
-			Setting.plugin_redmine_slack['channel'],
+			Setting.plugin_redmine_hangouts_chat['channel'],
 		].find{|v| v.present?}
 
 		# Channel name '-' is reserved for NOT notifying
