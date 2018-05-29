@@ -12,7 +12,7 @@ class SlackListener < Redmine::Hook::Listener
 
 		msg = {
 			:project_name => issue.project,
-			:author => issue.author,
+			:author => issue.author.to_s,
 			:action => "created",
 			:link => object_url(issue),
 			:issue => issue,
@@ -21,9 +21,6 @@ class SlackListener < Redmine::Hook::Listener
 
 		card = {}
 
-		card[:header] = {
-			:title => escape(issue.description)
-		} if issue.description
 
 		widgets = [{
 			:keyValue => {
@@ -37,13 +34,15 @@ class SlackListener < Redmine::Hook::Listener
 				:content => escape(issue.priority.to_s),
 				:contentMultiline => "false"
 			}
-		}, {
+		}]
+
+		widgets << {
 			:keyValue => {
 				:topLabel => I18n.t("field_assigned_to"),
 				:content => escape(issue.assigned_to.to_s),
 				:contentMultiline => "false"
 			}
-		}]
+		} if issue.assigned_to
 
 		widgets << {
 			:keyValue => {
