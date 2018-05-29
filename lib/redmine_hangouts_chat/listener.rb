@@ -1,6 +1,6 @@
 require 'httpclient'
 
-class SlackListener < Redmine::Hook::Listener
+class HangoutsChatListener < Redmine::Hook::Listener
 	def redmine_slack_issues_new_after_save(context={})
 		issue = context[:issue]
 
