@@ -3,10 +3,6 @@
 This plugin posts updates to issues in your Redmine installation to a Google Hangouts Chat
 channel. Improvements are welcome! Just send a pull request.
 
-## Screenshot
-
-![screenshot](https://raw.github.com/sciyoshi/redmine-slack/gh-pages/screenshot.png)
-
 ## Installation
 
 From your Redmine plugins directory, clone this repository as `redmine_hangouts_chat` (note
