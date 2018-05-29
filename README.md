@@ -22,11 +22,11 @@ Incoming WebHook integration in your Slack account.
 
 ## Customized Routing
 
-You can also route messages to different channels on a per-project basis. To
+You can also group messages to threads on a per-project basis. To
 do this, create a project custom field (Administration > Custom fields > Project)
-named `Slack Channel`. If no custom channel is defined for a project, the parent
+named `Hangouts Chat Thread`. If no custom thread is defined for a project, the parent
 project will be checked (or the default will be used). To prevent all notifications
-from being sent for a project, set the custom channel to `-`.
+from being sent for a project, set the custom thread to `-`.
 
 For more information, see http://www.redmine.org/projects/redmine/wiki/Plugins.
 

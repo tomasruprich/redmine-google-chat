@@ -4,10 +4,10 @@ class HangoutsChatListener < Redmine::Hook::Listener
 	def redmine_hangouts_chat_issues_new_after_save(context={})
 		issue = context[:issue]
 
-		channel = channel_for_project issue.project
+		thread = thread_for_project issue.project
 		url = url_for_project issue.project
 
-		return unless channel and url
+		return unless thread and url
 		return if issue.is_private?
 
 		msg = {
@@ -58,17 +58,17 @@ class HangoutsChatListener < Redmine::Hook::Listener
 			}
 		]
 
-		speak msg, channel, card, url
+		speak msg, thread, card, url
 	end
 
 	def redmine_hangouts_chat_issues_edit_after_save(context={})
 		issue = context[:issue]
 		journal = context[:journal]
 
-		channel = channel_for_project issue.project
+		thread = thread_for_project issue.project
 		url = url_for_project issue.project
 
-		return unless channel and url and Setting.plugin_redmine_hangouts_chat['post_updates'] == '1'
+		return unless thread and url and Setting.plugin_redmine_hangouts_chat['post_updates'] == '1'
 		return if issue.is_private?
 		return if journal.private_notes?
 
@@ -102,7 +102,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 				]
 		} if journal.notes
 
-		speak msg, channel, card, url
+		speak msg, thread, card, url
 	end
 
 	def model_changeset_scan_commit_for_issue_ids_pre_issue_update(context={})
@@ -110,10 +110,10 @@ class HangoutsChatListener < Redmine::Hook::Listener
 		journal = issue.current_journal
 		changeset = context[:changeset]
 
-		channel = channel_for_project issue.project
+		thread = thread_for_project issue.project
 		url = url_for_project issue.project
 
-		return unless channel and url and issue.save
+		return unless thread and url and issue.save
 		return if issue.is_private?
 
 		msg = {
@@ -162,7 +162,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 			:widgets => journal.details.map { |d| detail_to_field d }
 		}
 
-		speak msg, channel, card, url
+		speak msg, thread, card, url
 	end
 
 	def controller_wiki_edit_after_save(context = { })
@@ -173,7 +173,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 
 		user = page.content.author
 
-		channel = channel_for_project project
+		thread = thread_for_project project
 		url = url_for_project project
 
 		card = nil
@@ -193,14 +193,14 @@ class HangoutsChatListener < Redmine::Hook::Listener
 			:project_link => object_url(project)
 		}
 
-		speak comment, channel, card, url
+		speak comment, thread, card, url
 	end
 
-	def speak(msg, channel, card=nil, url=nil)
+	def speak(msg, thread, card=nil, url=nil)
 		url = Setting.plugin_redmine_hangouts_chat['hangouts_chat_url'] if not url
 		username = msg[:author]
 		icon = Setting.plugin_redmine_hangouts_chat['icon']
-		url = url + '&thread_key=' + channel if channel
+		url = url + '&thread_key=' + thread if thread
 
 		card[:header] = {
 			:title => "#{msg[:author]} #{msg[:action]} #{escape msg[:issue]} #{msg[:mentions]}",
@@ -292,15 +292,15 @@ private
 		].find{|v| v.present?}
 	end
 
-	def channel_for_project(proj)
+	def thread_for_project(proj)
 		return nil if proj.blank?
 
-		cf = ProjectCustomField.find_by_name("Slack Channel")
+		cf = ProjectCustomField.find_by_name("Hangouts Chat Thread")
 
 		val = [
 			(proj.custom_value_for(cf).value rescue nil),
-			(channel_for_project proj.parent),
-			Setting.plugin_redmine_hangouts_chat['channel'],
+			(thread_for_project proj.parent),
+			Setting.plugin_redmine_hangouts_chat['thread'],
 		].find{|v| v.present?}
 
 		# Channel name '-' is reserved for NOT notifying
