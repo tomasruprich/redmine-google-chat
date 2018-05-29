@@ -197,7 +197,7 @@ class HangoutsChatListener < Redmine::Hook::Listener
 	end
 
 	def speak(msg, channel, card=nil, url=nil)
-		url = Setting.plugin_redmine_hangouts_chat['slack_url'] if not url
+		url = Setting.plugin_redmine_hangouts_chat['hangouts_chat_url'] if not url
 		username = msg[:author]
 		icon = Setting.plugin_redmine_hangouts_chat['icon']
 		url = url + '&thread_key=' + channel if channel
@@ -288,7 +288,7 @@ private
 		return [
 			(proj.custom_value_for(cf).value rescue nil),
 			(url_for_project proj.parent),
-			Setting.plugin_redmine_hangouts_chat['slack_url'],
+			Setting.plugin_redmine_hangouts_chat['hangouts_chat_url'],
 		].find{|v| v.present?}
 	end
 
