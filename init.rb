@@ -18,7 +18,7 @@ Redmine::Plugin.register :redmine_hangouts_chat do
 			'username' => 'redmine',
 			'display_watchers' => 'no'
 		},
-		:partial => 'settings/slack_settings'
+		:partial => 'settings/hangouts_chat_settings'
 end
 
 ActionDispatch::Callbacks.to_prepare do
