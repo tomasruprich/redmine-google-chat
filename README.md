@@ -1,6 +1,6 @@
-# Slack chat plugin for Redmine
+# Google Hangouts Chat plugin for Redmine
 
-This plugin posts updates to issues in your Redmine installation to a Slack
+This plugin posts updates to issues in your Redmine installation to a Google Hangouts Chat
 channel. Improvements are welcome! Just send a pull request.
 
 ## Screenshot
@@ -9,10 +9,10 @@ channel. Improvements are welcome! Just send a pull request.
 
 ## Installation
 
-From your Redmine plugins directory, clone this repository as `redmine_slack` (note
+From your Redmine plugins directory, clone this repository as `redmine_hangouts_chat` (note
 the underscore!):
 
-    git clone https://github.com/sciyoshi/redmine-slack.git redmine_slack
+    git clone https://github.com/patope/redmine-hangouts-chat.git redmine_hangouts_chat
 
 You will also need the `httpclient` dependency, which can be installed by running
 
@@ -33,3 +33,5 @@ project will be checked (or the default will be used). To prevent all notificati
 from being sent for a project, set the custom channel to `-`.
 
 For more information, see http://www.redmine.org/projects/redmine/wiki/Plugins.
+
+This is based on redmine slack plugin https://github.com/sciyoshi/redmine-slack
