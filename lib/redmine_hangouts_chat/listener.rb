@@ -367,7 +367,7 @@ private
 				:content => value 
 			} 
 		} 
-		result[:short][:keyValue][:contentMultiline] = "true" if not short
+		result[:keyValue][:contentMultiline] = "true" if not short
 		result
 	end
 
