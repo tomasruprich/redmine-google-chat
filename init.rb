@@ -21,7 +21,7 @@ Redmine::Plugin.register :redmine_hangouts_chat do
 		:partial => 'settings/hangouts_chat_settings'
 end
 
-ActionDispatch::Callbacks.to_prepare do
+((Rails.version > "5")? ActiveSupport::Reloader : ActionDispatch::Callbacks).to_prepare do
 	require_dependency 'issue'
 	unless Issue.included_modules.include? RedmineHangoutsChat::IssuePatch
 		Issue.send(:include, RedmineHangoutsChat::IssuePatch)
