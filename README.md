@@ -1,6 +1,6 @@
-# Google Hangouts Chat plugin for Redmine
+# Google Chat plugin for Redmine
 
-This plugin posts updates to issues in your Redmine installation to a Google Hangouts Chat
+This plugin posts updates to issues in your Redmine installation to a Google Chat
 channel. Improvements are welcome! Just send a pull request.
 
 ## Installation
