@@ -5,10 +5,10 @@ channel. Improvements are welcome! Just send a pull request.
 
 ## Installation
 
-From your Redmine plugins directory, clone this repository as `redmine_google_chat` (note
+From your Redmine plugins directory, clone this repository as `redmine_hangouts_chat` (note
 the underscore!):
 
-    git clone https://github.com/patope/redmine-hangouts-chat.git redmine_google_chat
+    git clone https://github.com/patope/redmine-hangouts-chat.git redmine_hangouts_chat
 
 You will also need the `httpclient` dependency, which can be installed by running
 
